@@ -52,10 +52,17 @@ which deallocates the C++ object from memory.
 
 This project contains two example displacement vector fields in the `example` folder. One fields is quite coarse, with negative Jacobian determinant in multiple areas, which indicates non-physical behaviour in the context of medical image registration. The smooth counterpart has positive Jacobian determinant on the entire domain. Two example scripts are added to this repository to use the GNU Octave and the C++ implementation. Before the first use of the C++ implementation, the `compile_mex_functions.m` script should be ran the build the MEX function.
 
+The figure below shows the resulting inverse displacement vector field, together with the Jacobian determinant.
+
+![Input displacement vector field together with the inverse displacement vector field and their corresponding Jacobian determinants.](https://github.com/tjwdraper/InvertDisplacementField2d/blob/main/img/motionwithinverse.png?raw=true)
+
 ## Caveats
 
-1) linear interpolation vs cubic/spline/ ...
-2) only right-inverse, not necessarily left-inverse
+This implementation uses linear interpolation to sample the vector fields on warped grids. However, as shown in [[2]](#2), cubic spline interpolation can yield more accurate approximation at the cost of extra computing time.
+
+The iterative algorithm only uses the right-inverse property ($\varphi\circ\psi = \textnormal{Id}$), but one might argue that the outcoming approximation satisfies the left-inverse condition ($\psi\circ\varphi = \textnormal{Id}$). Although ideally, we would have "the" inverse satisfying both properties, there is as far as I know no guarantuee this model necessarily satisfies the left-inverse condition.
+
+If the input vector fields has negative Jacobian determinant anywhere, then this provides difficulties in calculating the inverse, since the Jacobian determinant should always have the same sign via the Inverse Function Theorem. Also, even if the input vector field has positive Jacobian determinant everywhere in the domain, the inverse calculated from this algorithm does not necessarily has so. That is why it might be more accurate to say this algorithm approximates a pseudo-inverse of %\varphi%, which satisfies $\varphi\circ\psi=\textnormal{Id}$, but is not necessarily in the same class of functions $C^1(\Omega;\mathbb{R}^2)$.
 
 ## References
 <a id="1">[1]</a>
