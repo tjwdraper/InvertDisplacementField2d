@@ -14,7 +14,7 @@ $v^j = -u\circ(\textnormal{Id} + v^{j-1}), \quad j \geqslant 1$
 
 Notice that after the first iteration, we have the approximation $v = -u$. This is a popular approximation for the inverse displacement field, and works well whenever the magnitude of the displacement vector field is small. However, the larger the displacements, the poorer this approximation becomes, and a more refined approximation is mandatory.
 
-This repository provides two implementations of this fixed-point algorithm, one in GNU Octave and one in C++. The C++ imeplementation can be compiled into a MEX-function that in turn can be called from GNU Octave. The C++ implementation is, as expected, significantly faster. Both implementations use linear interpolation to sample the displacement vector fields. The algorithm terminates whenever the user-specified convergence criterion $\epsilon$ is satisfied, $||v^j - v^{j-1}||^2 < \epsilon ||v^0||^2$.
+This repository provides two implementations of this fixed-point algorithm, one in GNU Octave and one in C++. The C++ implementation can be compiled into a MEX-function that in turn can be called from GNU Octave. The C++ implementation is, as expected, significantly faster. Both implementations use linear interpolation to sample the displacement vector fields. The algorithm terminates whenever the user-specified convergence criterion $\epsilon$ is satisfied, $||v^j - v^{j-1}||^2 < \epsilon ||v^0||^2$.
 
 ## Compilation
 
@@ -50,19 +50,21 @@ which deallocates the C++ object from memory.
 
 ## Results
 
-This project contains two example displacement vector fields in the `example` folder. One fields is quite coarse, with negative Jacobian determinant in multiple areas, which indicates non-physical behaviour in the context of medical image registration. The smooth counterpart has positive Jacobian determinant on the entire domain. Two example scripts are added to this repository to use the GNU Octave and the C++ implementation. Before the first use of the C++ implementation, the `compile_mex_functions.m` script should be ran the build the MEX function.
+This project contains two example displacement vector fields in the `example` folder. One fields is quite coarse, with negative Jacobian determinant in multiple areas, which indicates non-physical behavior in the context of medical image registration. The smooth counterpart has positive Jacobian determinant on the entire domain. Two example scripts are added to this repository to use the GNU Octave and the C++ implementation. Before the first use of the C++ implementation, the `compile_mex_functions.m` script should be ran the build the MEX function.
 
 The figure below shows the resulting inverse displacement vector field, together with the Jacobian determinant.
 
 ![Input displacement vector field together with the inverse displacement vector field and their corresponding Jacobian determinants.](https://github.com/tjwdraper/InvertDisplacementField2d/blob/main/img/motionwithinverse.png?raw=true)
 
+We also look at the mean and standard deviation of the displacement vector fields belonging to the compositions $\varphi\circ\psi$ and $\psi\circ\varphi$. Ideally, these vector fields should be zero everywhere. In our casus, these are $0.000\pm0.137$ and $-0.014\pm0.205$ respectively.
+
 ## Caveats
 
 This implementation uses linear interpolation to sample the vector fields on warped grids. However, as shown in [[2]](#2), cubic spline interpolation can yield more accurate approximation at the cost of extra computing time.
 
-The iterative algorithm only uses the right-inverse property ($\varphi\circ\psi = \textnormal{Id}$), but one might argue that the outcoming approximation satisfies the left-inverse condition ($\psi\circ\varphi = \textnormal{Id}$). Although ideally, we would have "the" inverse satisfying both properties, there is as far as I know no guarantuee this model necessarily satisfies the left-inverse condition.
+The iterative algorithm only uses the right-inverse property ($\varphi\circ\psi = \textnormal{Id}$), but one might argue that the resulting approximation satisfies the left-inverse condition ($\psi\circ\varphi = \textnormal{Id}$). Although ideally, we would have "the" inverse satisfying both properties, there is as far as I know no guarantee that this model necessarily satisfies the left-inverse condition. In the example above, we see that the calculated inverse vector field is also a reasonable approximation as a left-inverse.
 
-If the input vector fields has negative Jacobian determinant anywhere, then this provides difficulties in calculating the inverse, since the Jacobian determinant should always have the same sign via the Inverse Function Theorem. Also, even if the input vector field has positive Jacobian determinant everywhere in the domain, the inverse calculated from this algorithm does not necessarily has so. That is why it might be more accurate to say this algorithm approximates a pseudo-inverse of %\varphi%, which satisfies $\varphi\circ\psi=\textnormal{Id}$, but is not necessarily in the same class of functions $C^1(\Omega;\mathbb{R}^2)$.
+If the input vector fields has negative Jacobian determinant anywhere, then this provides difficulties in calculating the inverse, since the Jacobian determinant should always have the same sign via the Inverse Function Theorem. Also, even if the input vector field has positive Jacobian determinant everywhere in the domain, the inverse calculated from this algorithm does not necessarily has so. That is why it might be more accurate to say this algorithm approximates a pseudo-inverse of $\varphi$, which satisfies $\varphi\circ\psi=\textnormal{Id}$, but is not necessarily in the same class of functions $C^1(\Omega;\mathbb{R}^2)$.
 
 ## References
 <a id="1">[1]</a>
